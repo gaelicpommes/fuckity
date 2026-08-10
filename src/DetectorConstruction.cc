@@ -214,10 +214,9 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   const auto beam =
       BeamlineGeometry::BuildBeamline(logicWorld, fApplicatorIDmm);
 
-  // Keep the water surface at the fixed experimental reference plane.  The
-  // supplied 2 cm applicator STL ends at 424 mm, leaving a 6 mm air gap and
-  // therefore avoiding coincident/touching surfaces.
-  const auto phantomFrontZ = 430.0 * mm;
+  // Both STL applicators share this exit plane, so the water surface is flush
+  // with the selected applicator and there is no air gap or volume overlap.
+  const auto phantomFrontZ = beam.zAppExit;
 
   // Preserve your original homogeneous phantom dimensions:
   //

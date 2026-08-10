@@ -175,9 +175,15 @@ namespace {
   G4ThreeVector Applicator2cmToGeant4Point(const G4ThreeVector& p) {
     // The supplied 2 cm cone was exported with its beam axis along CAD Z
     // (unlike the TOPAS parts, whose beam axis is -Y).  Its wide upstream
-    // face is at CAD Z=136 mm and its 20 mm-ID downstream face is at
-    // CAD Z=-286 mm, so reverse that axis to make the beam travel along +Z.
-    return G4ThreeVector(p.x(), p.y(), -p.z());
+    // face is at CAD Z=136 mm. The downstream face is at CAD Z=-286 mm;
+    // its mesh radii are 20..35 mm (40 mm ID and 70 mm OD).
+    // CAD Z=-286 mm. Its native axial length is therefore 422 mm, whereas
+    // the reference 10 cm applicator spans 428 mm. Scale only the beam axis
+    // by 428/422 so both supplied applicators share the exact same entrance
+    // and exit planes; keep the STL's transverse dimensions unchanged.
+    constexpr G4double nativeUpstreamZ = 136.0;
+    constexpr G4double axialScale = 428.0 / 422.0;
+    return G4ThreeVector(p.x(), p.y(), (nativeUpstreamZ - p.z()) * axialScale);
   }
 
   G4ThreeVector TopasToGeant4Translation(G4double xTopas, G4double yTopas, G4double zTopas) {
@@ -305,17 +311,18 @@ BeamlineHandles BeamlineGeometry::BuildBeamline(G4LogicalVolume* worldLV, G4doub
     auto solid = Load2cmApplicatorAsG4Solid("Applicator2cmSolid", localBounds);
     auto logic = new G4LogicalVolume(solid, plexiglass, "Applicator2cmLV");
 
-    // CAD Z=136 mm (upstream) maps to G4 Z=2 mm.  The downstream CAD
-    // Z=-286 mm face consequently lands at G4 Z=424 mm, leaving a deliberate
-    // 6 mm air gap before the water phantom at Z=430 mm.
-    const G4ThreeVector translation(0.0, 0.0, 138.0*mm);
+    // The transformed STL begins at local Z=0 and ends at local Z=428 mm.
+    // Translating it by 2 mm matches the 10 cm applicator's Z=2..430 mm span.
+    const G4ThreeVector translation(0.0, 0.0, 2.0*mm);
     new G4PVPlacement(nullptr, translation, logic, "Applicator2cmPV",
                       worldLV, false, 0, true);
     SetSolidVis(logic, G4Colour::Blue());
     h.applicatorLV = logic;
-    h.appInnerR = 10.0*mm;
+    // These radii come from the downstream face of the supplied STL. Axial
+    // scaling does not modify X or Y, so its diameters remain unchanged.
+    h.appInnerR = 20.0*mm;
     h.appOuterR = 65.0*mm;
-    h.zAppExit = 424.0*mm;
+    h.zAppExit = 430.0*mm;
     h.appLength = h.zAppExit - h.zAppEntrance;
     cadBounds.Include(localBounds.min + translation);
     cadBounds.Include(localBounds.max + translation);
@@ -347,8 +354,8 @@ BeamlineHandles BeamlineGeometry::BuildBeamline(G4LogicalVolume* worldLV, G4doub
   // From the TOPAS 10 cm applicator STL bounds and placement: local Y spans
   // -362..66 mm with TransY=-68 mm, so the entrance/exit faces are TOPAS
   // Y=-2/-430 mm. Under the mapping G4 Z=-TOPAS Y, all applicator options
-  // span z=2..430 mm.  The supplied 2 cm STL ends at z=424 mm; the phantom
-  // remains at the fixed experimental reference position z=430 mm.
+  // span z=2..430 mm. The 2 cm STL's native 422 mm axial span is scaled to
+  // 428 mm so it also ends flush with the phantom at z=430 mm.
   h.zWindow = TopasToGeant4Translation(0.0*mm, 121.65*mm, 0.0*mm).z();
 
   // Helper volume used only by /gps/pos/confine SourceCutoffPV in the
