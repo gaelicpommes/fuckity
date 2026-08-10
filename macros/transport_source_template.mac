@@ -1,0 +1,21 @@
+# Parametric source fixed from the 10 cm PDD calibration.
+# Placeholders are filled by run_transport.slurm.
+/gps/verbose 0
+/gps/particle e-
+
+/gps/ene/type Gauss
+/gps/ene/mono @SOURCE_MEAN_MEV@ MeV
+/gps/ene/sigma @SOURCE_SIGMA_MEV@ MeV
+
+/gps/direction 0 0 1
+/gps/ang/type beam2d
+/gps/ang/rot1 1 0 0
+/gps/ang/rot2 0 -1 0
+/gps/ang/sigma_x @SIGMA_THETA_DEG@ deg
+/gps/ang/sigma_y @SIGMA_THETA_DEG@ deg
+
+/gps/pos/type Beam
+/gps/pos/centre 0 0 -121.65 mm
+/gps/pos/sigma_x @SIGMA_X_MM@ mm
+/gps/pos/sigma_y @SIGMA_Y_MM@ mm
+/gps/pos/confine SourceCutoffPV

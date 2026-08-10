@@ -1,0 +1,35 @@
+# Interactive geometry/trajectory preview. This is deliberately a small run;
+# do not use it instead of plate_study.mac for production dose scoring.
+/control/verbose 1
+/run/verbose 1
+/event/verbose 0
+/tracking/verbose 0
+
+/flash/enablePlateStudy true
+/run/initialize
+
+/gps/particle e-
+/gps/pos/type Plane
+/gps/pos/shape Circle
+/gps/pos/centre 0 0 -0.1 mm
+/gps/pos/radius 30 mm
+/gps/ang/type planar
+/gps/direction 0 0 1
+/gps/ene/type Mono
+/gps/ene/mono 12 MeV
+
+/vis/open OGL 1000x700-0+0
+/vis/drawVolume
+/vis/viewer/set/viewpointThetaPhi 70 20 deg
+/vis/viewer/set/style surface
+/vis/viewer/set/auxiliaryEdge true
+/vis/scene/add/axes 0 0 0 20 mm
+/vis/scene/add/trajectories smooth
+/vis/scene/endOfEventAction accumulate 50
+/tracking/storeTrajectory 1
+
+/run/beamOn 50
+/vis/viewer/flush
+
+# Use the OpenGL/Qt viewer's Save image action to write a PNG. Change the
+# /gps/ene/mono line above and rerun for a 6, 9, or 12 MeV track preview.

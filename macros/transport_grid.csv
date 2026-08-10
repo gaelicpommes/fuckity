@@ -1,0 +1,7 @@
+run_id,beamOn,nominal_energy_MeV,source_mean_MeV,source_sigma_MeV,sigmaTheta_deg,sigma_x_mm,sigma_y_mm,applicator_cm,config
+T01,50000000,9,9.70,1.30,0.2,0.73,0.73,10,flash9_10cm
+T02,50000000,9,9.70,1.30,0.2,0.73,0.73,5,flash9_5cm
+T03,50000000,9,9.70,1.30,0.2,0.73,0.73,2,flash9_2cm
+T04,50000000,6,6.70,1.00,0.2,0.73,0.73,10,flash6_10cm
+T05,50000000,6,6.70,1.00,0.2,0.73,0.73,5,flash6_5cm
+T06,50000000,6,6.70,1.00,0.2,0.73,0.73,2,flash6_2cm

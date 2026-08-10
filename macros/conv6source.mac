@@ -1,0 +1,26 @@
+/control/macroPath macros
+
+/gps/verbose 1
+/gps/particle e-
+
+/gps/ene/type Gauss
+/gps/ene/mono 6.85 MeV
+/gps/ene/sigma 2 MeV
+
+/gps/pos/type Beam
+/gps/pos/centre 0 0 0 mm
+/gps/pos/sigma_x 0.73 mm
+/gps/pos/sigma_y 0.73 mm
+
+#/gps/ang/type planar
+#/gps/direction 0 0 1
+
+# --- Angular spread (Gaussian divergence) ---
+/gps/ang/type beam2d
+/gps/ang/rot1 1 0 0
+/gps/ang/rot2 0 -1 0
+/gps/ang/sigma_x 0.2 deg
+/gps/ang/sigma_y 0.2 deg
+
+# Hard cutoff at e-window plane
+/gps/pos/confine SourceCutoffPV

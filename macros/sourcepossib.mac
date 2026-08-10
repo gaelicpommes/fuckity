@@ -1,0 +1,100 @@
+#sourcepossib.mac
+
+/control/macroPath macros
+/gps/verbose 0
+/gps/particle e-
+
+/gps/ene/type Gauss
+/gps/ene/mono EMEAN MeV
+/gps/ene/sigma SIGE MeV
+
+/gps/direction 0 0 1
+/gps/ang/type beam2d
+/gps/ang/rot1 1 0 0
+/gps/ang/rot2 0 -1 0
+/gps/ang/sigma_x SIGTH deg
+/gps/ang/sigma_y SIGTH deg
+
+/gps/pos/type Beam
+/gps/pos/centre 0 0 -121.65 mm
+/gps/pos/sigma_x SX mm
+/gps/pos/sigma_y SY mm
+
+
+/gps/pos/confine SourceCutoffPV
+
+
+# # # # # # # # 
+# sourcepossib.mac
+# Batch GPS template filled by runpossib.slurm from CSV columns:
+# run_id,beamOn,Emean_MeV,sigmaE_MeV,sigmaTheta_deg,sigma_x_mm,sigma_y_mm
+#
+# Coordinate mapping for the TOPAS CAD geometry:
+# TOPAS beam axis -Y maps to Geant4 +Z, so TOPAS BeamPosition
+# TransY=121.65 mm becomes Geant4 source centre Z=-121.65 mm.
+
+#/control/macroPath macros
+#/gps/verbose 0
+#/gps/particle e-
+
+# Energy distribution from CSV: EMEAN and SIGE.
+#/gps/ene/type Gauss
+#/gps/ene/mono EMEAN MeV
+#/gps/ene/sigma SIGE MeV
+
+# Gaussian beam spot from CSV: SX and SY.
+#/gps/pos/type Beam
+#/gps/pos/centre 0 0 -121.65 mm
+#/gps/pos/sigma_x SX mm
+#/gps/pos/sigma_y SY mm
+
+# Beam direction and Gaussian angular spread from CSV: SIGTH.
+#/gps/direction 0 0 1
+#/gps/ang/type beam2d
+#/gps/ang/rot1 1 0 0
+#/gps/ang/rot2 0 -1 0
+#/gps/ang/sigma_x SIGTH deg
+#/gps/ang/sigma_y SIGTH deg
+
+# Do not confine to SourceCutoffPV: the CAD beamline no longer creates that helper volume.
+
+
+
+#/gps/ene/type Mono
+#/gps/ene/mono 9.5 MeV
+
+#/gps/pos/type Plane
+#/gps/pos/shape Circle
+#/gps/pos/centre 0 0 -121.65 mm
+#/gps/pos/radius 2.2 mm
+
+#/gps/direction 0 0 1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

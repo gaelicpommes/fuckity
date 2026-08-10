@@ -1,0 +1,42 @@
+# macros/vis.mac
+
+/control/macroPath macros
+
+# 1) Make sure geometry exists
+/run/initialize
+
+# 2) Open viewer + create a scene
+/vis/open OGLSQt
+/vis/scene/create
+
+# 3) Add geometry to scene (THIS is what was failing)
+/vis/scene/add/volume
+/vis/drawVolume
+/vis/viewer/set/style surface
+
+# 4) Trajectories
+/tracking/storeTrajectory 1
+/vis/scene/add/trajectories smooth
+/vis/scene/endOfEventAction accumulate 10
+
+# 5) Color by particle type
+/vis/modeling/trajectories/create/drawByParticleID
+/vis/modeling/trajectories/drawByParticleID-0/set e- red
+/vis/modeling/trajectories/drawByParticleID-0/set e+ magenta
+/vis/modeling/trajectories/drawByParticleID-0/set gamma green
+
+# ---- Show only tracks inside selected volumes ----
+#/vis/filtering/trajectories/create/volumeFilter onlyBeamPath
+
+# Add volumes where tracks are allowed to be shown
+#/vis/filtering/trajectories/volumeFilter-0/add Applicator10cmPV
+#/vis/filtering/trajectories/volumeFilter-0/add WaterPhantomPV
+
+# Apply filter
+#/vis/filtering/trajectories/apply onlyBeamPath
+
+
+
+/vis/viewer/flush
+/vis/viewer/refresh
+

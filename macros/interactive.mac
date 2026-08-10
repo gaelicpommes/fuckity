@@ -1,0 +1,7 @@
+# macros/interactive.mac  (glue)
+
+/control/macroPath macros
+/control/macroPath ../macros
+/control/execute vis.mac
+/control/execute source.mac
+/control/execute run.mac

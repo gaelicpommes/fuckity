@@ -1,0 +1,8 @@
+# Matched homogeneous-water control plus shared source/scorer setup.
+/control/verbose 1
+/run/verbose 1
+/event/verbose 0
+/tracking/verbose 0
+/flash/enableWaterOnlyStudy true
+/run/initialize
+/control/execute central_axis_study_source_scoring.mac

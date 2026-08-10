@@ -1,0 +1,21 @@
+# Transport diagnostic run. C++ actions score first downstream crossings at:
+#   1. z = 1.9 mm, just upstream of the applicator entrance;
+#   2. the water-phantom entrance boundary at z = 430 mm.
+
+/control/verbose 1
+/run/verbose 0
+/event/verbose 0
+/tracking/verbose 0
+
+/random/setSeeds @SEED1@ @SEED2@
+
+# Geometry must be selected before initialization.
+/flash/setApplicatorIDcm @APPLICATOR_CM@
+/run/initialize
+
+# GPS commands require initialized user actions and geometry. The source uses
+# SourceCutoffPV, which is created during geometry construction.
+/control/execute @SOURCE_MAC@
+
+/run/printProgress 1000000
+/run/beamOn @BEAMON@

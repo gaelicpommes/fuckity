@@ -1,0 +1,59 @@
+# =========================
+# beamdiag_template.mac
+# One run produces:
+#  - PDD (1D) in water along CAX
+#  - Exit plane 2D dose (water surface slab)
+#  - Exit plane 2D fluence
+# =========================
+
+/control/verbose 1
+/run/verbose 0
+/event/verbose 0
+/tracking/verbose 0
+
+# Applicator ID selection in cm (allowed: 10, 5, 2)
+# You can also set: export FLASH_APPLICATOR_CM=10|5|2
+# Optional (requires binary with /flash messenger support):
+# /flash/setApplicatorIDcm 10
+# Optional batch replacement token:
+# /flash/setApplicatorIDcm APPLICATOR_CM
+
+# Init
+/run/initialize
+
+# Source (GPS commands require actions to be initialized)
+/control/execute ../macros/source.mac
+# Optional batch replacement token:
+# /control/execute SOURCE_MAC
+
+# -------------------------
+# (A) PDD mesh (1D along Z)
+# -------------------------
+/score/create/boxMesh pdd1D
+/score/mesh/boxSize 10 10 40 mm
+/score/mesh/nBin    1 1 160
+/score/mesh/translate/xyz 0 0 591.65 mm
+/score/quantity/doseDeposit pddDose
+/score/close
+
+# -------------------------
+# (B) Exit plane 2D mesh (water surface slab)
+# -------------------------
+/score/create/boxMesh exit2D
+/score/mesh/boxSize 60 60 0.25 mm  
+/score/mesh/nBin    120 120 1   
+/score/mesh/translate/xyz 0 0 551.75 mm
+/score/quantity/doseDeposit exitDose
+/score/quantity/cellFlux    exitfluence
+/score/close
+
+# Run (default runnable line)
+/run/beamOn 10000
+# Optional batch replacement token:
+# /run/beamOn BEAMON
+
+# Dump all outputs
+/score/dumpQuantityToFile pdd1D  pddDose   PDD_TXT
+/score/dumpQuantityToFile exit2D exitDose   EXIT_DOSE_TXT
+/score/dumpQuantityToFile exit2D exitfluence EXIT_FLUENCE_TXT
+

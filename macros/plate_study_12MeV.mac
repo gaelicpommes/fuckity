@@ -1,0 +1,5 @@
+/control/macroPath macros
+/control/execute plate_study_setup.mac
+/gps/ene/mono 12 MeV
+/run/beamOn 50000000
+/score/dumpQuantityToFile centralAxis dose plate_pdd_12MeV.txt

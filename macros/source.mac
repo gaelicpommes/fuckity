@@ -1,0 +1,15 @@
+# macros/source.mac
+# TOPAS reference source from SimuFK_Topas.txt:
+# 9.5 MeV mono e-, flat 2.2 mm circular spot, no angular spread.
+/gps/particle e-
+/gps/ene/type Mono
+/gps/ene/mono 9.5 MeV
+# TOPAS BeamPosition is at Y=121.65 mm and rotated -90 deg.
+# In this Geant4 replica the same source plane is z=0 and downstream is +Z.
+/gps/pos/type Plane
+/gps/pos/shape Circle
+/gps/pos/centre 0 0 0 mm
+/gps/pos/radius 2.2 mm
+/gps/pos/rot1 1 0 0
+/gps/pos/rot2 0 1 0
+/gps/direction 0 0 1

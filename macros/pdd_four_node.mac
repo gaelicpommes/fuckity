@@ -1,0 +1,71 @@
+# =========================
+# pdd_four_node.mac
+# Four-node batch template with per-row applicator and lateral-profile depths.
+# Placeholders are filled by run_four_nodes.slurm.
+# =========================
+
+/control/verbose 1
+/run/verbose 0
+/event/verbose 0
+/tracking/verbose 0
+
+# Applicator ID selection in cm (allowed: 10, 5, 2).
+# Must be set before /run/initialize.
+/flash/setApplicatorIDcm APPLICATOR_CM
+
+# Init geometry before loading GPS source so SourceCutoffPV exists.
+/run/initialize
+/control/execute SOURCE_MAC
+
+# -------------------------
+# (A) PDD mesh (1D along Z)
+# -------------------------
+/score/create/boxMesh pdd1D
+/score/mesh/boxSize 1 1 40 mm
+/score/mesh/nBin    1 1 160
+/score/mesh/translate/xyz 0 0 470.0 mm
+/score/quantity/doseDeposit pddDose
+/score/close
+
+# -------------------------
+# (B) Lateral profile at dmax depth
+# -------------------------
+/score/create/boxMesh latDmax2D
+/score/mesh/boxSize 75 2.5 0.5 mm
+/score/mesh/nBin    150 1 1
+/score/mesh/translate/xyz 0 0 LAT_DMAX_Z mm
+/score/quantity/doseDeposit latDmaxDose
+/score/close
+
+
+
+# -------------------------
+# (C) Lateral profile at R50 depth
+# -------------------------
+/score/create/boxMesh latR50_2D
+/score/mesh/boxSize 75 2.5 0.5 mm
+/score/mesh/nBin    150 1 1
+/score/mesh/translate/xyz 0 0 LAT_R50_Z mm
+/score/quantity/doseDeposit latR50Dose
+/score/close
+
+# -------------------------
+# (D) Lateral profile at mid-depth
+# -------------------------
+/score/create/boxMesh latMid2D
+/score/mesh/boxSize 75 2.5 0.5 mm
+/score/mesh/nBin    150 1 1
+/score/mesh/translate/xyz 0 0 LAT_MID_Z mm
+/score/quantity/doseDeposit latMidDose
+/score/close
+
+# Run
+/run/printProgress 1000000
+/run/beamOn BEAMON
+
+# Dump outputs
+/score/dumpQuantityToFile pdd1D     pddDose     PDD_TXT
+/score/dumpQuantityToFile latDmax2D latDmaxDose LAT_DMAX_DOSE_TXT
+/score/dumpQuantityToFile latR50_2D latR50Dose  LAT_R50_DOSE_TXT
+/score/dumpQuantityToFile latMid2D  latMidDose  LAT_MID_DOSE_TXT
+

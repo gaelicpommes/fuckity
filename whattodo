@@ -1,0 +1,184 @@
+Rmax 15
+R90 27
+R80 31
+R50 39
+
+profiles 
+or a reviewer-safe paper:
+APPLICATOR_CM=10 sbatch runpossib.slurm
+APPLICATOR_CM=5 sbatch runpossib.slurm
+APPLICATOR_CM=2 sbatch runpossib.slurm
+
+PDD: keep your 1 1 40 mesh
+Profiles: use three in-water doseDeposit line meshes
+10 cm: 75 0.5 0.25 with 150 1 1
+5 cm: 40 0.5 0.25 with 80 1 1
+2 cm: 20 0.25 0.25 with 80 1 1
+
+
+
+cd $VSC_SCRATCH/projects/third_sim/FlashElectronSim
+git status
+git add . -f
+git commit -m "Refine electron FLASH simulation geometry"
+git push origin main
+
+git remote -v
+
+
+sbatch --array=1-1 run_pddgrid.slurm
+ 
+wsl -d Ubuntu-22.04
+cd ~/FlashElectronSim/build
+
+cd /scratch/brussel/113/vsc11383/projects/third_sim/FlashElectronSim/
+
+source env_flash.sh
+
+source en
+
+salloc --time=10:00:00 --cpus-per-task=1 --mem=4G
+srun --pty bash -l
+srun --jobid=50014688 --pty bash -l (change the jobid)
+hostname
+to start jupyter:
+salloc --time=10:00:00 --cpus-per-task=1 --mem=4G
+module purge
+module load Python/3.12.3-GCCcore-13.3.0
+source ~/venvs/flash_py312/bin/activate
+ex
+
+
+
+
+
+sacct -j 12674393_1 --format=JobID,Elapsed,AllocCPUS,TotalCPU
+sacct -j 12674858_1  --format=JobID,JobName,State,Elapsed,Timelimit,Start,End
+
+unset SLURM_MEM_PER_CPU
+srun --pty bash -ls
+hostname
+module purge
+module load Python/3.12.3-GCCcore-13.3.0
+source ~/venvs/flash_py312/bin/activate
+
+cd /scratch/brussel/113/vsc11383/projects/third_sim/FlashElectronSim/
+jupyter lab --no-browser --ip=0.0.0.0 --port=8888
+
+grep -iE "event|events|beamOn|progress|run" logs/pddgrid_50038103_1.out | tail -30
+
+
+nano ~/.bashrc
+
+sbatch run_pdd.slurm
+
+squeue -u vsc11383
+
+cd /scratch/brussel/113/vsc11383/projects/third_sim/FlashElectronSim/build
+./FlashElectronSim macros/pdd.mac
+
+./FlashElectronSim
+
+/control/macroPath macros
+
+
+/control/execute vis.mac          
+#/control/execute conv9source.mac
+/control/execute pdd.mac
+
+/run/beamOn 3000
+/score/dumpQuantityToFile pddMesh dose pdd_dose.txt
+
+
+/vis/viewer/flush
+
+Then in Qt:
+
+
+/control/execute source.mac
+/run/beamOn 50
+/vis/viewer/flush
+
+
+/control/execute vis.mac          
+/control/execute conv9source.mac
+/control/execute pdd.mac
+
+./FlashElectronSim ../macros/pdd.mac
+
+make clean
+cmake ..
+make -j
+
+----------
+
+/vis/open OGLSQt
+/vis/scene/create
+/vis/scene/add/volume
+/vis/drawVolume
+/vis/viewer/flush
+
+/run/initialize
+/tracking/storeTrajectory 1
+/vis/scene/add/trajectories smooth
+/vis/scene/endOfEventAction accumulate 50
+
+# quick test source (no macros)
+#/gps/particle e-
+#/gps/ene/type Mono
+#/gps/ene/mono 9 MeV
+#/gps/pos/type Point
+#/gps/pos/centre 0 0 -1 cm
+#/gps/direction 0 0 1
+
+/run/beamOn 500
+/vis/viewer/flush
+
+/vis/filtering/trajectories/create/particleFilter primOnly
+/vis/filtering/trajectories/particleFilter-0/add e-
+/vis/filtering/trajectories/particleFilter-0/invert false
+/vis/filtering/trajectories/apply primOnly
+
+
+# macros/source.mac  (Geant4 GPS - manufacturer beam model at window plane)
+# Note: Your Geant4 GPS likely does NOT support cutoff_x/cutoff_y. We approximate with Gaussian + geometry collimation.
+
+/gps/particle e-
+/gps/ene/type Mono
+/gps/ene/mono 9.5 MeV
+
+# Gaussian spot at the eWindow reference plane (z=0)
+# Cutoff ~2.2 mm corresponds roughly to ~3σ => σ ≈ 0.73 mm
+/gps/pos/type Beam
+/gps/pos/centre 0 0 0 mm
+/gps/pos/sigma_x 0.73 mm
+/gps/pos/sigma_y 0.73 mm
+
+# Start with pencil direction along +Z (add divergence later if needed)
+/gps/direction 0 0 1
+
+
+make clean
+cmake ..
+make -j
+
+
+cp ~/FlashElectronSim/build/pdd_dose.txt /mnt/c/Users/irish/Desktop/
+
+
+
+meas_depth = np.array([
+    1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,
+    21,22,23,24,25,26,27,28,29,30,31,33,35,37,39,41,
+    43,45,47,49,51,53,56,61,66
+], dtype=float)
+
+meas_normC = np.array([
+    94.04,94.04,96.33,96.79,97.25,97.71,98.17,98.62,99.08,99.31,
+    99.82,100.00,100.00,99.75,99.72,99.08,99.08,99.31,98.44,97.48,
+    96.56,96.33,95.00,93.39,91.74,90.37,88.94,86.28,83.58,80.83,
+    77.66,71.06,62.43,53.21,43.94,33.87,25.06,17.36,12.13,5.92,
+    2.84,1.25,0.46,0.23,0.30
+], dtype=float)
+
+

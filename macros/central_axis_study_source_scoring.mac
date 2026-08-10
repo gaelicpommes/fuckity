@@ -1,0 +1,15 @@
+# Identical 6 cm ideal source and scoring mesh for plate/control calculations.
+/gps/particle e-
+/gps/pos/type Plane
+/gps/pos/shape Circle
+/gps/pos/centre 0 0 -0.1 mm
+/gps/pos/radius 30 mm
+/gps/ang/type planar
+/gps/direction 0 0 1
+/gps/ene/type Mono
+/score/create/boxMesh centralAxis
+/score/mesh/boxSize 0.5 0.5 40 mm
+/score/mesh/nBin 1 1 160
+/score/mesh/translate/xyz 0 0 40 mm
+/score/quantity/doseDeposit dose
+/score/close

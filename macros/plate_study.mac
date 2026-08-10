@@ -1,0 +1,8 @@
+# Backward-compatible single-process plate-study macro (6 MeV only).
+# Geant4 installations such as 11.3 do not provide /score/reset. Run all three
+# independent energies with: ./run_plate_study.sh [threads]
+/control/macroPath macros
+/control/execute plate_study_setup.mac
+/gps/ene/mono 6 MeV
+/run/beamOn 100000
+/score/dumpQuantityToFile centralAxis dose plate_pdd_6MeV.txt
