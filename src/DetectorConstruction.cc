@@ -218,16 +218,13 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   // with the selected applicator and there is no air gap or volume overlap.
   const auto phantomFrontZ = beam.zAppExit;
 
-  // Preserve your original homogeneous phantom dimensions:
-  //
-  //   transverse size = 160 mm
-  //   depth = 80 mm
-  //
+  // Clinical water phantom: 300 x 300 x 300 mm3. Its upstream face remains
+  // flush with the applicator exit/reference plane.
   const auto phantom = PhantomGeometry::BuildWaterBox(
       logicWorld,
       phantomFrontZ,
-      160.0,
-      80.0);
+      300.0,
+      300.0);
 
   G4cout << "========================================" << G4endl;
   G4cout << "Applicator exit Z = "

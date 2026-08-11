@@ -60,6 +60,11 @@ namespace {
     return G4Colour(1.0, 0.5, 0.0);
   }
 
+  G4Colour ApplicatorBlue() {
+    // Bright enough to remain distinct against the dark visualization theme.
+    return G4Colour(0.15, 0.45, 1.0);
+  }
+
   void SetSolidVis(G4LogicalVolume* lv, const G4Colour& c) {
     auto vis = new G4VisAttributes(c);
     vis->SetForceSolid(true);
@@ -316,7 +321,7 @@ BeamlineHandles BeamlineGeometry::BuildBeamline(G4LogicalVolume* worldLV, G4doub
     const G4ThreeVector translation(0.0, 0.0, 2.0*mm);
     new G4PVPlacement(nullptr, translation, logic, "Applicator2cmPV",
                       worldLV, false, 0, true);
-    SetSolidVis(logic, G4Colour::Blue());
+    SetSolidVis(logic, ApplicatorBlue());
     h.applicatorLV = logic;
     // These radii come from the downstream face of the supplied STL. Axial
     // scaling does not modify X or Y, so its diameters remain unchanged.
@@ -339,14 +344,14 @@ BeamlineHandles BeamlineGeometry::BuildBeamline(G4LogicalVolume* worldLV, G4doub
     auto appLV = new G4LogicalVolume(appSolid, plexiglass, appName + "LV");
     new G4PVPlacement(nullptr, G4ThreeVector(0, 0, appCenterZ), appLV,
                       appName + "PV", worldLV, false, 0, true);
-    SetSolidVis(appLV, G4Colour::Blue());
+    SetSolidVis(appLV, ApplicatorBlue());
 
     h.applicatorLV = appLV;
     cadBounds.Include(G4ThreeVector(-h.appOuterR, -h.appOuterR, h.zAppEntrance));
     cadBounds.Include(G4ThreeVector( h.appOuterR,  h.appOuterR, h.zAppExit));
   } else {
     h.applicatorLV = PlaceTopasCAD(worldLV, "Applicator10cm", "Applicateaur100mmx428mm.stl", plexiglass,
-                                   G4ThreeVector(0.0*mm, -68.0*mm, 0.0*mm), G4Colour::Blue(), cadBounds);
+                                   G4ThreeVector(0.0*mm, -68.0*mm, 0.0*mm), ApplicatorBlue(), cadBounds);
     h.appInnerR = 50.0*mm;
     h.appOuterR = 58.0*mm;
   }

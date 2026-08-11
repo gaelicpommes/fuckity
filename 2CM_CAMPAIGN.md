@@ -182,7 +182,9 @@ bash ./view_10cm_geometry.sh
 ```
 
 The window shows the complete beamline, blue 10 cm STL applicator, and cyan
-water phantom. Use the mouse to rotate, pan, and zoom. Close the Qt window or
+wireframe 300 x 300 x 300 mm3 water phantom on a dark navy background. Curved
+components use additional line segments and auxiliary edges so their outlines
+remain easy to distinguish. Use the mouse to rotate, pan, and zoom. Close the Qt window or
 enter `exit` in its command box to stop the program. The wrapper forces one
 Geant4 worker and the macro contains no `/run/beamOn`, so it does not run a
 simulation.

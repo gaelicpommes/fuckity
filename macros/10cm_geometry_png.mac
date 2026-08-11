@@ -10,9 +10,11 @@
 /vis/scene/add/volume
 /vis/drawVolume
 /vis/viewer/set/style surface
-/vis/viewer/set/background 1 1 1
+/vis/viewer/set/background 0.03 0.04 0.07
 /vis/viewer/set/viewpointThetaPhi 90 0 deg
-/vis/viewer/set/targetPoint 0 0 215 mm
-/vis/viewer/zoom 1.35
+/vis/viewer/set/targetPoint 0 0 300 mm
+/vis/viewer/set/auxiliaryEdge true
+/vis/viewer/set/lineSegmentsPerCircle 100
+/vis/viewer/zoom 1.15
 /vis/viewer/flush
 /vis/ogl/export beamline_10cm_geometry_300dpi.png
