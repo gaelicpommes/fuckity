@@ -31,6 +31,7 @@ int main(int argc, char** argv)
   // 3. The user supplies "--interactive".
   //
   bool keepUiOpen = (argc == 1);
+  bool noSession = false;
 
   if (argc > 1) {
     const std::string macroPath = argv[1];
@@ -47,6 +48,10 @@ int main(int argc, char** argv)
   for (int i = 2; i < argc; ++i) {
     if (std::string(argv[i]) == "--interactive") {
       keepUiOpen = true;
+    } else if (std::string(argv[i]) == "--no-session") {
+      // Construct the Qt application so OGLSQt can export a PNG, but return
+      // immediately after the supplied macro instead of opening a UI session.
+      noSession = true;
     }
   }
 
@@ -81,7 +86,8 @@ int main(int argc, char** argv)
     // ./FlashElectronSim <macro.mac> <threads> --interactive
     //
     if (argc > 2 &&
-        std::string(argv[2]) != "--interactive") {
+        std::string(argv[2]) != "--interactive" &&
+        std::string(argv[2]) != "--no-session") {
       nThreads = std::max(
           1,
           std::atoi(argv[2]));
@@ -119,7 +125,7 @@ int main(int argc, char** argv)
   // from being interpreted as Qt or shell arguments.
   std::unique_ptr<G4UIExecutive> uiExecutive;
 
-  if (keepUiOpen) {
+  if (keepUiOpen || noSession) {
     G4int uiArgc = (argc == 1) ? argc : 1;
 
     uiExecutive =
@@ -158,7 +164,7 @@ int main(int argc, char** argv)
   // Start the interactive session only after all commands in the macro
   // have completed. The geometry and trajectories remain visible while
   // the user rotates, pans, zooms, and saves images.
-  if (uiExecutive) {
+  if (uiExecutive && !noSession) {
     G4cout
         << "[FlashElectronSim] UI remains open. "
         << "Use the viewer controls, or type 'exit' to close."

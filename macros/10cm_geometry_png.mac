@@ -1,0 +1,19 @@
+# Export a high-resolution side view of the 10 cm applicator and water phantom.
+# Geometry only: this macro does not run any particles.
+/control/verbose 1
+/run/verbose 0
+/flash/setApplicatorIDcm 10
+/run/initialize
+
+/vis/open OGLSQt 1800x1200-0+0
+/vis/scene/create
+/vis/scene/add/volume
+/vis/drawVolume
+/vis/viewer/set/style surface
+/vis/viewer/set/background 1 1 1
+/vis/viewer/set/viewpointThetaPhi 90 0 deg
+/vis/viewer/set/targetPoint 0 0 215 mm
+/vis/viewer/zoom 1.35
+/vis/viewer/set/size 3000 2000
+/vis/viewer/flush
+/vis/ogl/export beamline_10cm_geometry_300dpi.png
