@@ -1,0 +1,31 @@
+# Export a high-resolution side view of 50 primary histories through the
+# 10 cm applicator and water phantom.
+/control/verbose 1
+/run/verbose 0
+/event/verbose 0
+/tracking/verbose 0
+/random/setSeeds 1357911 2468021
+/flash/setApplicatorIDcm 10
+/run/initialize
+/control/execute macros/10cm_vis_source.mac
+
+/vis/open OGLSQt 3000x2000-0+0
+/vis/scene/create
+/vis/scene/add/volume
+/vis/drawVolume
+/vis/viewer/set/style surface
+/vis/viewer/set/background 1 1 1
+/vis/viewer/set/viewpointThetaPhi 90 0 deg
+/vis/viewer/set/targetPoint 0 0 215 mm
+/vis/viewer/zoom 1.35
+
+/tracking/storeTrajectory 1
+/vis/scene/add/trajectories smooth
+/vis/modeling/trajectories/create/drawByParticleID
+/vis/modeling/trajectories/drawByParticleID-0/set e- red
+/vis/modeling/trajectories/drawByParticleID-0/set e+ magenta
+/vis/modeling/trajectories/drawByParticleID-0/set gamma green
+/vis/scene/endOfEventAction accumulate 50
+/run/beamOn 50
+/vis/viewer/flush
+/vis/ogl/export beamline_10cm_tracks50_200dpi.png
