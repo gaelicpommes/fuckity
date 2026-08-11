@@ -214,7 +214,8 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   const auto beam =
       BeamlineGeometry::BuildBeamline(logicWorld, fApplicatorIDmm);
 
-  // The water surface is flush with the applicator exit.
+  // Both STL applicators share this exit plane, so the water surface is flush
+  // with the selected applicator and there is no air gap or volume overlap.
   const auto phantomFrontZ = beam.zAppExit;
 
   // Preserve your original homogeneous phantom dimensions:
