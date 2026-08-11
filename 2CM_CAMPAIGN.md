@@ -168,6 +168,25 @@ cd /scratch/brussel/113/vsc11383/projects/third_sim/FlashElectronSim
 
 ## Export publication PNGs for the 10 cm applicator
 
+### Just open the 10 cm geometry window
+
+For an interactive window without PNG export and without particle transport,
+run this from an X11-forwarded or graphical session:
+
+```bash
+cd /scratch/brussel/113/vsc11383/projects/third_sim/FlashElectronSim
+module purge
+module load Geant4/11.3.0-GCC-13.3.0
+module load Geant4-data/11.3
+bash ./view_10cm_geometry.sh
+```
+
+The window shows the complete beamline, blue 10 cm STL applicator, and cyan
+water phantom. Use the mouse to rotate, pan, and zoom. Close the Qt window or
+enter `exit` in its command box to stop the program. The wrapper forces one
+Geant4 worker and the macro contains no `/run/beamOn`, so it does not run a
+simulation.
+
 Use an X11-forwarded session or graphical interactive node; the Qt OpenGL
 viewer requires `DISPLAY`. From the project root, run:
 
