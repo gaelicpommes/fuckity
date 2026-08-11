@@ -60,6 +60,11 @@ namespace {
     return G4Colour(1.0, 0.5, 0.0);
   }
 
+  G4Colour ApplicatorBlue() {
+    // Bright enough to remain distinct against the dark visualization theme.
+    return G4Colour(0.15, 0.45, 1.0);
+  }
+
   void SetSolidVis(G4LogicalVolume* lv, const G4Colour& c) {
     auto vis = new G4VisAttributes(c);
     vis->SetForceSolid(true);
@@ -172,6 +177,20 @@ namespace {
     return G4ThreeVector(p.x(), p.z(), -p.y());
   }
 
+  G4ThreeVector Applicator2cmToGeant4Point(const G4ThreeVector& p) {
+    // The supplied 2 cm cone was exported with its beam axis along CAD Z
+    // (unlike the TOPAS parts, whose beam axis is -Y).  Its wide upstream
+    // face is at CAD Z=136 mm. The downstream face is at CAD Z=-286 mm;
+    // its mesh radii are 20..35 mm (40 mm ID and 70 mm OD).
+    // CAD Z=-286 mm. Its native axial length is therefore 422 mm, whereas
+    // the reference 10 cm applicator spans 428 mm. Scale only the beam axis
+    // by 428/422 so both supplied applicators share the exact same entrance
+    // and exit planes; keep the STL's transverse dimensions unchanged.
+    constexpr G4double nativeUpstreamZ = 136.0;
+    constexpr G4double axialScale = 428.0 / 422.0;
+    return G4ThreeVector(p.x(), p.y(), (nativeUpstreamZ - p.z()) * axialScale);
+  }
+
   G4ThreeVector TopasToGeant4Translation(G4double xTopas, G4double yTopas, G4double zTopas) {
     return TopasToGeant4Point(G4ThreeVector(xTopas, yTopas, zTopas));
   }
@@ -199,6 +218,38 @@ namespace {
     }
     solid->SetSolidClosed(true);
 
+    G4cout << "[Beamline CAD] Loaded " << filename << " as " << solidName
+           << " with " << triangles.size() << " triangles" << G4endl;
+    return solid;
+  }
+
+  G4TessellatedSolid* Load2cmApplicatorAsG4Solid(const G4String& solidName,
+                                                 Bounds& bounds) {
+    const std::string filename = "2cmapplicator-Cone.stl";
+    const auto path = ResolveSTLPath(filename);
+    std::vector<Triangle> triangles;
+    try {
+      triangles = LooksLikeAsciiSTL(path) ? ReadAsciiSTL(path) : ReadBinarySTL(path);
+    } catch (const std::exception& e) {
+      G4ExceptionDescription msg;
+      msg << "Failed to parse STL file '" << path.string() << "': " << e.what();
+      G4Exception("BeamlineGeometry::Load2cmApplicatorAsG4Solid",
+                  "FlashElectronSim003", FatalException, msg);
+    }
+
+    auto solid = new G4TessellatedSolid(solidName);
+    for (const auto& tri : triangles) {
+      const auto a = Applicator2cmToGeant4Point(tri.a);
+      const auto b = Applicator2cmToGeant4Point(tri.b);
+      const auto c = Applicator2cmToGeant4Point(tri.c);
+      bounds.Include(a);
+      bounds.Include(b);
+      bounds.Include(c);
+      // Reversing one axis changes handedness, so swap two vertices to retain
+      // the STL's outward facet orientation.
+      solid->AddFacet(new G4TriangularFacet(a, c, b, ABSOLUTE));
+    }
+    solid->SetSolidClosed(true);
     G4cout << "[Beamline CAD] Loaded " << filename << " as " << solidName
            << " with " << triangles.size() << " triangles" << G4endl;
     return solid;
@@ -254,24 +305,36 @@ BeamlineHandles BeamlineGeometry::BuildBeamline(G4LogicalVolume* worldLV, G4doub
   PlaceTopasCAD(worldLV, "CAD12", "CAD12.stl", al,
                 G4ThreeVector(0.0*mm, 153.45*mm, -117.5*mm), TopasOrange(), cadBounds);
 
-  // Keep the original supplied TOPAS STL applicator for the 10 cm option.
-  // For 5 cm and 2 cm, use analytic PMMA tubes with the same TOPAS applicator
-  // length/placement so every applicator exit remains flush with the phantom.
+  // Keep the supplied STL applicators for the 10 cm and 2 cm options.  The
+  // intermediate 5 cm option has no supplied mesh and remains an analytic tube.
   h.zAppEntrance = TopasToGeant4Translation(0.0*mm, -2.0*mm, 0.0*mm).z();
   h.zAppExit = TopasToGeant4Translation(0.0*mm, -430.0*mm, 0.0*mm).z();
   h.appLength = h.zAppExit - h.zAppEntrance;
 
-  if (std::abs(applicatorIDmm - 50.0*mm) < 1e-6*mm ||
-      std::abs(applicatorIDmm - 20.0*mm) < 1e-6*mm) {
+  if (std::abs(applicatorIDmm - 20.0*mm) < 1e-6*mm) {
+    Bounds localBounds;
+    auto solid = Load2cmApplicatorAsG4Solid("Applicator2cmSolid", localBounds);
+    auto logic = new G4LogicalVolume(solid, plexiglass, "Applicator2cmLV");
+
+    // The transformed STL begins at local Z=0 and ends at local Z=428 mm.
+    // Translating it by 2 mm matches the 10 cm applicator's Z=2..430 mm span.
+    const G4ThreeVector translation(0.0, 0.0, 2.0*mm);
+    new G4PVPlacement(nullptr, translation, logic, "Applicator2cmPV",
+                      worldLV, false, 0, true);
+    SetSolidVis(logic, ApplicatorBlue());
+    h.applicatorLV = logic;
+    // These radii come from the downstream face of the supplied STL. Axial
+    // scaling does not modify X or Y, so its diameters remain unchanged.
+    h.appInnerR = 20.0*mm;
+    h.appOuterR = 65.0*mm;
+    h.zAppExit = 430.0*mm;
+    h.appLength = h.zAppExit - h.zAppEntrance;
+    cadBounds.Include(localBounds.min + translation);
+    cadBounds.Include(localBounds.max + translation);
+  } else if (std::abs(applicatorIDmm - 50.0*mm) < 1e-6*mm) {
     G4double appID = 50.0*mm;
     G4double appOD = 65.0*mm;
     G4String appName = "Applicator5cm";
-
-    if (std::abs(applicatorIDmm - 20.0*mm) < 1e-6*mm) {
-      appID = 20.0*mm;
-      appOD = 35.0*mm;
-      appName = "Applicator2cm";
-    }
 
     h.appInnerR = appID/2.0;
     h.appOuterR = appOD/2.0;
@@ -281,14 +344,14 @@ BeamlineHandles BeamlineGeometry::BuildBeamline(G4LogicalVolume* worldLV, G4doub
     auto appLV = new G4LogicalVolume(appSolid, plexiglass, appName + "LV");
     new G4PVPlacement(nullptr, G4ThreeVector(0, 0, appCenterZ), appLV,
                       appName + "PV", worldLV, false, 0, true);
-    SetSolidVis(appLV, G4Colour::Blue());
+    SetSolidVis(appLV, ApplicatorBlue());
 
     h.applicatorLV = appLV;
     cadBounds.Include(G4ThreeVector(-h.appOuterR, -h.appOuterR, h.zAppEntrance));
     cadBounds.Include(G4ThreeVector( h.appOuterR,  h.appOuterR, h.zAppExit));
   } else {
     h.applicatorLV = PlaceTopasCAD(worldLV, "Applicator10cm", "Applicateaur100mmx428mm.stl", plexiglass,
-                                   G4ThreeVector(0.0*mm, -68.0*mm, 0.0*mm), G4Colour::Blue(), cadBounds);
+                                   G4ThreeVector(0.0*mm, -68.0*mm, 0.0*mm), ApplicatorBlue(), cadBounds);
     h.appInnerR = 50.0*mm;
     h.appOuterR = 58.0*mm;
   }
@@ -296,7 +359,8 @@ BeamlineHandles BeamlineGeometry::BuildBeamline(G4LogicalVolume* worldLV, G4doub
   // From the TOPAS 10 cm applicator STL bounds and placement: local Y spans
   // -362..66 mm with TransY=-68 mm, so the entrance/exit faces are TOPAS
   // Y=-2/-430 mm. Under the mapping G4 Z=-TOPAS Y, all applicator options
-  // span z=2..430 mm and the water phantom starts at z=430 mm.
+  // span z=2..430 mm. The 2 cm STL's native 422 mm axial span is scaled to
+  // 428 mm so it also ends flush with the phantom at z=430 mm.
   h.zWindow = TopasToGeant4Translation(0.0*mm, 121.65*mm, 0.0*mm).z();
 
   // Helper volume used only by /gps/pos/confine SourceCutoffPV in the

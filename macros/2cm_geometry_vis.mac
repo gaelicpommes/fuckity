@@ -1,0 +1,20 @@
+# Geometry-only view of the supplied 2 cm applicator STL and water phantom.
+# There is intentionally no /run/beamOn command in this macro.
+
+/control/verbose 1
+/run/verbose 0
+/flash/setApplicatorIDcm 2
+/run/initialize
+
+/vis/open OGLSQt
+/vis/scene/create
+/vis/scene/add/volume
+/vis/drawVolume
+/vis/viewer/set/style surface
+/vis/viewer/set/background 0.03 0.04 0.07
+/vis/viewer/set/viewpointThetaPhi 90 0 deg
+/vis/viewer/set/targetPoint 0 0 300 mm
+/vis/viewer/set/auxiliaryEdge true
+/vis/viewer/set/lineSegmentsPerCircle 100
+/vis/viewer/zoom 1.15
+/vis/viewer/flush
