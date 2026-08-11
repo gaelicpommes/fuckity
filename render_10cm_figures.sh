@@ -14,6 +14,11 @@ OUTPUT_DIR="${1:-${PROJECT_DIR}/figures}"
   exit 1
 }
 
+# Visualization does not benefit from a many-worker compute-node allocation.
+# One worker prevents every UI command from being broadcast by 100+ G4WT
+# threads and makes the 50 displayed histories deterministic and readable.
+export G4FORCENUMBEROFTHREADS=1
+
 mkdir -p "${OUTPUT_DIR}"
 OUTPUT_DIR="$(cd "${OUTPUT_DIR}" && pwd)"
 WORK_DIR="$(mktemp -d "${OUTPUT_DIR}/render.XXXXXX")"
@@ -27,7 +32,7 @@ cat > 10cm_geometry_png.mac <<'MACRO'
 /run/verbose 0
 /flash/setApplicatorIDcm 10
 /run/initialize
-/vis/open OGLSQt 1800x1200-0+0
+/vis/open OGLSQt 3000x2000-0+0
 /vis/scene/create
 /vis/scene/add/volume
 /vis/drawVolume
@@ -36,7 +41,6 @@ cat > 10cm_geometry_png.mac <<'MACRO'
 /vis/viewer/set/viewpointThetaPhi 90 0 deg
 /vis/viewer/set/targetPoint 0 0 215 mm
 /vis/viewer/zoom 1.35
-/vis/viewer/set/size 3000 2000
 /vis/viewer/flush
 /vis/ogl/export beamline_10cm_geometry_300dpi.png
 MACRO
@@ -69,7 +73,7 @@ cat > 10cm_tracks50_png.mac <<'MACRO'
 /flash/setApplicatorIDcm 10
 /run/initialize
 /control/execute 10cm_vis_source.mac
-/vis/open OGLSQt 1800x1200-0+0
+/vis/open OGLSQt 3000x2000-0+0
 /vis/scene/create
 /vis/scene/add/volume
 /vis/drawVolume
@@ -86,7 +90,6 @@ cat > 10cm_tracks50_png.mac <<'MACRO'
 /vis/modeling/trajectories/drawByParticleID-0/set gamma green
 /vis/scene/endOfEventAction accumulate 50
 /run/beamOn 50
-/vis/viewer/set/size 3000 2000
 /vis/viewer/flush
 /vis/ogl/export beamline_10cm_tracks50_200dpi.png
 MACRO

@@ -216,10 +216,16 @@ You can confirm that the self-contained version is present with
 Geant4 Qt commonly appends a sequence suffix, for example `_0000.png`, even
 when the requested filename already ends in `.png`. The wrapper now detects
 that filename and renames it to the documented canonical name before setting
-DPI. It also asks the viewer for 3000x2000 pixels using
-`/vis/viewer/set/size`; if the X11/OpenGL framebuffer restricts the export to a
-smaller size such as 640x480, the script preserves the valid image but prints a
-resolution warning.
+DPI. It requests a 3000x2000 window in the supported `/vis/open` size hint; if
+the X11/OpenGL framebuffer restricts the export to a smaller size such as
+640x480, the script preserves the valid image but prints a resolution warning.
+Geant4 11.3 does not provide `/vis/viewer/set/size`, so the wrapper deliberately
+does not issue that command.
+
+The wrapper forces `G4FORCENUMBEROFTHREADS=1` for both figure runs. Rendering 50
+histories does not benefit from a full compute-node thread count, and a single
+worker prevents the `/run/initialize` commands from being echoed once by every
+`G4WT` worker.
 
 `GeomNav1002` about a stuck track in `CAD11PV` is a Geant4 navigation warning
 from a transported visualization history. It does not mean the PNG export
