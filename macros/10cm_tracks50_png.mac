@@ -27,5 +27,6 @@
 /vis/modeling/trajectories/drawByParticleID-0/set gamma green
 /vis/scene/endOfEventAction accumulate 50
 /run/beamOn 50
+/vis/viewer/set/size 3000 2000
 /vis/viewer/flush
-/vis/ogl/export beamline_10cm_tracks50_200dpi.png 3000 2000
+/vis/ogl/export beamline_10cm_tracks50_200dpi.png
